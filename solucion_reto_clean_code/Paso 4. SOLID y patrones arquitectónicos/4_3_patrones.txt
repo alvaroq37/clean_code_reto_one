@@ -1,0 +1,46 @@
+Justificación
+Por qué Microservicios sobre MVC Monolítico:
+Escalabilidad Independiente: El proceso de pedidos tiene picos de carga predecibles (black Friday, eventos)
+
+Equipos Autónomos: Diferentes equipos pueden trabajar en checkout, fulfillment y pagos simultáneamente
+
+Resiliencia: Fallos en un servicio no afectan todo el sistema
+
+Evolución Tecnológica: Cada servicio puede usar la stack tecnológica más apropiada
+
+Deployments Independientes: Actualizaciones sin downtime completo del sistema
+
+Arquitectura Propuesta:
+
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   API Gateway   │    │  Service Discovery│    │  Config Server  │
+│   (Routing &    │    │   (Eureka/Consul) │    │ (Centralized    │
+│   Auth)         │    │                  │    │   Config)       │
+└─────────┬───────┘    └──────────────────┘    └─────────────────┘
+          │
+          │
+          ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     CORE ORDER DOMAIN                           │
+└─────────────────────────────────────────────────────────────────┘
+          │              │               │              │
+          ▼              ▼               ▼              ▼
+┌─────────────────┐┌─────────────────┐┌─────────────────┐┌─────────────────┐
+│ Order Service   ││ Payment Service ││ Inventory       ││ Notification    │
+│ (Command)       ││ (Transaction    ││ Service         ││ Service         │
+│                 ││  Processing)    ││ (Stock &        ││ (Events &       │
+│ - Create order  ││ - Process       ││  Reservation)   ││  Notifications) │
+│ - Update status ││  payments       ││ - Check stock   ││ - Send emails   │
+│ - Cancel order  ││ - Handle refunds││ - Reserve items ││ - Push notifs   │
+└─────────┬───────┘└─────────────────┘└─────────┬───────┘└─────────────────┘
+          │                                     │
+          │                                     │
+          ▼                                     ▼
+┌─────────────────┐                   ┌─────────────────┐
+│ Order Query     │                   │ Shipping        │
+│ Service         │                   │ Service         │
+│ (Read Model)    │                   │ (Logistics)     │
+│ - Get orders    │                   │ - Calculate     │
+│ - Search orders │                   │   shipping      │
+│ - Order history │                   │ - Track delivery│
+└─────────────────┘                   └─────────────────┘

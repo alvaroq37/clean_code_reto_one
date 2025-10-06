@@ -1,0 +1,111 @@
+DIAGRAMAS UML
+
+1. CONTEXTO DE CATALOGO
+┌─────────────────┐      ┌──────────────────┐
+│   Producto      │      │   Categoría      │
+├─────────────────┤      ├──────────────────┤
+│ - id: String    │      │ - id: String     │
+│ - nombre: String│      │ - nombre: String │
+│ - precio: Double│      │ - descripcion:   │
+│ - stock: Int    │      │   String         │
+│ - activo: Boolean┼─────┼► - productos:    │
+│ - categoriaId:  │      │   List<Producto> │
+│   String        │      └──────────────────┘
+├─────────────────┤
+│ + actualizarStock()│
+│ + cambiarPrecio() │
+│ + desactivar()    │
+└─────────────────┘
+
+┌─────────────────┐
+│  Inventario     │
+├─────────────────┤
+│ - productoId:   │
+│   String        │
+│ - stockActual:  │
+│   Int           │
+│ - stockMinimo:  │
+│   Int           │
+│ - ubicacion:    │
+│   String        │
+├─────────────────┤
+│ + reservar()    │
+│ + liberar()     │
+│ + ajustarStock()│
+└─────────────────┘
+
+2. CONTEXTO DE VEMNTA (CARRITO/PEDIDO)
+┌─────────────────┐      ┌──────────────────┐      ┌─────────────────┐
+│    Carrito      │1    *│  ItemCarrito     │      │    Pedido       │
+├─────────────────┤      ├──────────────────┤      ├─────────────────┤
+│ - id: String    │      │ - productoId:    │      │ - id: String    │
+│ - clienteId:    │      │   String         │      │ - clienteId:    │
+│   String        │      │ - cantidad: Int  │      │   String        │
+│ - items: List   │      │ - precioUnitario:│      │ - estado:       │
+│   <ItemCarrito> │      │   Double         │      │   EstadoPedido  │
+├─────────────────┤      │ - subtotal:      │      │ - total: Double │
+│ + agregarItem() │      │   Double         │      │ - fecha:        │
+│ + removerItem() │      ├──────────────────┤      │   LocalDateTime │
+│ + calcularTotal()│     │ + calcularSubtotal()│   ├─────────────────┤
+│ + vaciar()      │      └──────────────────┘     │ + confirmar()    │
+└─────────────────┘                               │ + cancelar()     │
+         │                                        │ + procesar()     │
+         │                                        └─────────────────┘
+         │                                                 1
+         │                                                 *
+         └─────────────────────────────────┐               │
+                                           │               │
+                                  ┌────────┴────────┐      │
+                                  │ LineaPedido     │      │
+                                  ├─────────────────┤      │
+                                  │ - productoId:   │      │
+                                  │   String        │      │
+                                  │ - cantidad: Int │      │
+                                  │ - precio: Double│      │
+                                  └─────────────────┘      │
+                                                           │
+                                                  ┌────────┴────────┐
+                                                  │ DireccionEnvio  │
+                                                  ├─────────────────┤
+                                                  │ - calle: String │
+                                                  │ - ciudad: String│
+                                                  │ - codigoPostal: │
+                                                  │   String        │
+                                                  └─────────────────┘
+												  
+
+3. CONTEXTO DE PAGOS
+┌─────────────────┐      ┌──────────────────┐      ┌─────────────────┐
+│     Pago        │      │   Transaccion    │      │  MedioPago      │
+├─────────────────┤      ├──────────────────┤      ├─────────────────┤
+│ - id: String    │1    *│ - id: String     │      │ - tipo: TipoMedio│
+│ - pedidoId:     │      │ - pagoId: String │      │ - datos: Map    │
+│   String        │      │ - monto: Double  │      │   <String,      │
+│ - clienteId:    │      │ - fecha:         │      │   String>       │
+│   String        │      │   LocalDateTime  │      └─────────────────┘
+│ - total: Double │      │ - estado:        │               △
+│ - estado:       │      │   EstadoTransacc │      ┌─────────┴─────────┐
+│   EstadoPago    │      │ - referencia:    │      │ TarjetaCredito    │
+├─────────────────┤      │   String         │      ├─────────────────┤
+│ + procesar()    │      ├──────────────────┤      │ - numero: String│
+│ + reembolsar()  │      │ + autorizar()    │      │ - titular: String│
+│ + verificar()   │      │ + capturar()     │      │ - vencimiento:   │
+└─────────────────┘      │ + reversar()     │      │   LocalDate      │
+         │               └──────────────────┘      │ - cvv: String   │
+         │                      △                  └─────────────────┘
+         │              ┌───────┴───────┐
+         │              │ PayPal        │
+         │              ├───────────────┤
+         │              │ - email: String│
+         │              └───────────────┘
+         │
+┌────────┴────────┐
+│ Factura         │
+├─────────────────┤
+│ - pagoId: String│
+│ - numero: String│
+│ - fechaEmision: │
+│   LocalDate     │
+│ - detalles:     │
+│   String        │
+└─────────────────┘
